@@ -9,22 +9,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let email: string, password: string, success: boolean, error: boolean, message: string, user: Pick<any, string>,
         data: any;
 
-    ({ email } = req.query as { email: string });
-    if (email) {
-        ({ data, success, message } = await getUserByEmail(email as string));
-        user = pick(data, userPaths);
-        return Resp(res, success ? 200 : 500, message, user);
-    }
 
     switch (req.method) {
 
         case "GET":
-           ({ error, data, success, message } = await getUsers());
-           if (data.hasOwnProperty('length') && data.length) {
-               let users = picks(data, userPaths);
-               return Resp(res, 200, message, users);
-           }
-           return Resp(res, 500, message, data);
+           return Resp(res, 500, "Not authorized", data);
 
         case "POST":
             const { firstName, lastName, phoneNumber } = req.body;
@@ -37,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             ({email, password} = req.body);
             ({ success, error, message, data } = await loginUser(email, password));
             user = pick(data, userPaths);
+            console.log("patched trigger")
             return Resp(res, 200,  message, user);
 
     }
